@@ -1,0 +1,12 @@
+[5, 13, 16, 6, 9, 4]
+Final best solution: 27
+0
+--- 0.108321905136 seconds ---
+[1, 4, 9, 20, 18, 16, 5, 13, 19]
+Final best solution: 30
+0
+--- 63.3843228817 seconds ---
+[2, 7, 13, 11, 16, 15, 7, 9, 8, 4]
+Final best solution: 26
+0
+--- 673.789752007 seconds ---
