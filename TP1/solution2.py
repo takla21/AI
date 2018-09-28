@@ -68,11 +68,14 @@ def fastest_path_estimation(sol):
 		del not_visited[c]
 		for index in range(0,len(self.not_visited)):
 			v = sol.not_visited[index]
-			alt = dist[n] + sol.graph[n[1]][v]
+			alt = dist[n] + sol.graph[n][v]
 			if alt < dist[v]:
 				dist[v] = alt
-				
-	
+			if dist[n] > dist[v]:
+				c = index
+			if pm == v
+				return alt
+	return None
 	
     
 
@@ -88,6 +91,13 @@ def A_star(graph, places):
     T = []
     heapq.heapify(T)
     heapq.heappush(T, root)
+    
+    while len(T) > 0:
+		sol = heapq.heappop(T)
+		
+	return None
+    
+    
 
 def read_graph():
     return np.loadtxt("montreal", dtype='i', delimiter=',')
