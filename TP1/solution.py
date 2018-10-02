@@ -13,7 +13,7 @@ class Solution:
         self.g = 0 # current cost
         self.graph = graph 
         self.visited = [places[0]] # list of already visited attractions
-        self.not_visited = copy.deepcopy(places[1:]) # list of attractions not yet visited
+        self.not_visited = copy.deepcopy(places[1:(len(places) -1)]) # list of attractions not yet visited
         self.last = places[-1]
         self.best = None
         
@@ -67,6 +67,7 @@ start_time = time.time()
 places=[0, 5, 13, 16, 6, 9, 4]
 sol = bfs(graph=graph, places=places)
 print(sol.g)
+print(sol.visited)
 print("--- %s seconds ---" % (time.time() - start_time))
 
 #test 2 -------------- OPT. SOL. = 30
@@ -74,6 +75,7 @@ start_time = time.time()
 places=[0, 1, 4, 9, 20, 18, 16, 5, 13, 19]
 sol = bfs(graph=graph, places=places)
 print(sol.g)
+print(sol.visited)
 print("--- %s seconds ---" % (time.time() - start_time))
 
 #test 3 -------------- OPT. SOL. = 26
@@ -81,4 +83,5 @@ start_time = time.time()
 places=[0, 2, 7, 13, 11, 16, 15, 7, 9, 8, 4]
 sol = bfs(graph=graph, places=places)
 print(sol.g)
+print(sol.visited)
 print("--- %s seconds ---" % (time.time() - start_time))

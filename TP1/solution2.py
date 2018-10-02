@@ -16,7 +16,7 @@ class Solution:
         self.g = 0  # current cost
         self.graph = graph
         self.visited = [places[0]]  # list of already visited attractions
-        self.not_visited = copy.deepcopy(places[1:])  # list of attractions not yet visited
+        self.not_visited = copy.deepcopy(places[1:(len(places) -1)]) # list of attractions not yet visited
         self.last = places[-1]
         self.best = None
         self.h = 0;
@@ -34,10 +34,10 @@ class Solution:
             self.visited.append(self.last)
             self.g += graph[place][self.last]
             complete = True
+        else:
+            self.h = fastest_path_estimation(self)
 
         self.g += graph[old_place][place]
-
-        self.h = fastest_path_estimation(self)
         return complete
 
     def __lt__(self, other):
@@ -46,26 +46,27 @@ class Solution:
 
 def fastest_path_estimation(sol):
     """
-    Returns the time spent on the fastest path betweenS
+    Returns the time spent on the fastest path between
     the current vertex c and the ending vertex pm
     """
     c = sol.visited[-1]
-    pm = copy.deepcopy(sol.not_visited)[-1]
+    pm = sol.not_visited[-1]
     not_visited = copy.deepcopy(sol.not_visited)
 
     dist = {}
 
-    for index in range(0, len(sol.not_visited)):
-        v = sol.not_visited[index]
-        dist[v] = math.inf
+    for index in range(0, len(not_visited)):
+        v = not_visited[index]
+        dist[v] = 99999999999999
 
     dist[c] = 0
-    n = 0
-    while len(sol.not_visited) > 0:
+    not_visited = np.append(not_visited, c)
+    n = len(not_visited) - 1
+    while len(not_visited) > 0:
         c = not_visited[n]
-        np.delete(not_visited, n)
-        for index in range(0, len(sol.not_visited)):
-            v = sol.not_visited[index]
+        not_visited = np.delete(not_visited, n)
+        for index in range(0, len(not_visited)):
+            v = not_visited[index]
             alt = dist[c] + sol.graph[c][v]
             if alt < dist[v]:
                 dist[v] = alt
@@ -75,6 +76,10 @@ def fastest_path_estimation(sol):
                 return alt
     return None
 
+def minimum_spanning_arborescence(sol):
+    """
+    Returns the cost to reach the vertices in the unvisited list
+    """
 
 def A_star(graph, places):
     """
@@ -91,11 +96,11 @@ def A_star(graph, places):
 
     while len(T) > 0:
         cur = heapq.heappop(T)
-        if len(cur.not_visited) <= 0:
+        if len(cur.not_visited) == 0:
             return cur
         for i in range(len(cur.not_visited)):
             new_solution = copy.deepcopy(cur)
-            complete = new_solution.add(i)
+            new_solution.add(i)
             heapq.heappush(T, new_solution)
 
     return None
