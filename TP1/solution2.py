@@ -65,6 +65,7 @@ def fastest_path_estimation(sol):
     while len(not_visited) > 0:
         c = not_visited[n]
         not_visited = np.delete(not_visited, n)
+
         for index in range(0, len(not_visited)):
             v = not_visited[index]
             alt = dist[c] + sol.graph[c][v]
