@@ -14,7 +14,6 @@ class Solution:
         self.graph = graph 
         self.visited = [places[0]] # list of already visited attractions
         self.not_visited = copy.deepcopy(places[1:]) # list of attractions not yet visited
-        print(self.not_visited)
         self.last = places[-1]
         self.best = None
         
@@ -23,24 +22,19 @@ class Solution:
         Adds the point in position idx of not_visited list to the solution
         """
         place = self.not_visited[idx]
+        old_place = self.visited[-1]
         self.not_visited = np.delete(self.not_visited, idx)
         self.visited.append(place)
-        cur = 0
-        cost = 0
         complete = False
         if len(self.not_visited) == 0:
             self.visited.append(self.last)
+            self.g += graph[place][self.last]
             complete = True
 
-        for place_index in range(1,len(self.visited)):
-            cost += graph[self.visited[cur]][self.visited[place_index]]
-            cur = place_index
+        self.g += graph[old_place][place]
 
-
-        self.g = cost
         return complete
-        
-        
+
 
 def read_graph():
     return np.loadtxt("montreal", dtype='i', delimiter=',')
@@ -63,10 +57,7 @@ def bfs(graph, places):
 
             queue.put(new_solution)
 
-    print('Final best solution: ' + str(best_solution.g))
-    return solution
-
-
+    return best_solution
 
 
 graph = read_graph()
