@@ -69,7 +69,7 @@ sol = bfs(graph=graph, places=places)
 print(sol.g)
 print(sol.visited)
 print("--- %s seconds ---" % (time.time() - start_time))
-
+"""
 #test 2 -------------- OPT. SOL. = 30
 start_time = time.time()
 places=[0, 1, 4, 9, 20, 18, 16, 5, 13, 19]
@@ -85,3 +85,4 @@ sol = bfs(graph=graph, places=places)
 print(sol.g)
 print(sol.visited)
 print("--- %s seconds ---" % (time.time() - start_time))
+"""

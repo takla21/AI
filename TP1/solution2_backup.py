@@ -16,8 +16,7 @@ class Solution:
         self.g = 0  # current cost
         self.graph = graph
         self.visited = [places[0]]  # list of already visited attractions
-        self.not_visited = copy.deepcopy(places[1:(len(places) -1)]) # list of attractions not yet visited
-        self.last = places[-1]
+        self.not_visited = copy.deepcopy(places[1:])  # list of attractions not yet visited
         self.best = None
         self.h = 0;
 
@@ -29,16 +28,10 @@ class Solution:
         old_place = self.visited[-1]
         self.not_visited = np.delete(self.not_visited, idx)
         self.visited.append(place)
-        complete = False
-        if len(self.not_visited) == 0:
-            self.visited.append(self.last)
-            self.g += graph[place][self.last]
-            complete = True
-        else:
+        if len(self.not_visited) > 0:
             self.h = fastest_path_estimation(self)
 
         self.g += graph[old_place][place]
-        return complete
 
     def __lt__(self, other):
         return (self.g + self.h) < (other.g + other.h)
@@ -57,30 +50,38 @@ def fastest_path_estimation(sol):
 
     for index in range(0, len(not_visited)):
         v = not_visited[index]
-        dist[v] = 99999999999999
+        dist[v] = math.inf
 
     dist[c] = 0
     not_visited = np.append(not_visited, c)
     n = len(not_visited) - 1
+
     while len(not_visited) > 0:
         c = not_visited[n]
+        print(sol.visited)
         not_visited = np.delete(not_visited, n)
+        low = math.inf
 
         for index in range(0, len(not_visited)):
             v = not_visited[index]
             alt = dist[c] + sol.graph[c][v]
-            if alt < dist[v]:
-                dist[v] = alt
-            if dist[c] > dist[v]:
-                n = index
             if pm == v:
-                return alt
-    return None
+                if len(not_visited) == 1:
+                    return alt
+            else:
+                if alt < dist[v]:
+                    dist[v] = alt
+                if low > dist[v]:
+                    n = index
+                    low = dist[v]
+    return math.inf
+
 
 def minimum_spanning_arborescence(sol):
     """
     Returns the cost to reach the vertices in the unvisited list
     """
+
 
 def A_star(graph, places):
     """
@@ -89,6 +90,7 @@ def A_star(graph, places):
 
     # blank solution
     root = Solution(graph=graph, places=places)
+    pm = root.not_visited[-1]
 
     # search tree T
     T = []
@@ -100,9 +102,16 @@ def A_star(graph, places):
         if len(cur.not_visited) == 0:
             return cur
         for i in range(len(cur.not_visited)):
-            new_solution = copy.deepcopy(cur)
-            new_solution.add(i)
-            heapq.heappush(T, new_solution)
+            if cur.not_visited[i] == pm:
+                if len(cur.not_visited) == 1:
+                    new_solution = copy.deepcopy(cur)
+                    new_solution.add(i)
+                    heapq.heappush(T, new_solution)
+            else:
+                new_solution = copy.deepcopy(cur)
+                new_solution.add(i)
+                print(new_solution.visited)
+                heapq.heappush(T, new_solution)
 
     return None
 
@@ -120,6 +129,7 @@ astar_sol = A_star(graph=graph, places=places)
 print(astar_sol.g)
 print(astar_sol.visited)
 print("--- %s seconds ---" % (time.time() - start_time))
+
 
 # test 2  --------------  OPT. SOL. = 30
 start_time = time.time()
