@@ -19,7 +19,7 @@ class Solution:
         self.not_visited = copy.deepcopy(places[1:(len(places) -1)]) # list of attractions not yet visited
         self.last = places[-1]
         self.best = None
-        self.h = 0;
+        self.h = 0
 
     def add(self, idx):
         """
