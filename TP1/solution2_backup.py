@@ -58,23 +58,20 @@ def fastest_path_estimation(sol):
 
     while len(not_visited) > 0:
         c = not_visited[n]
-        print(sol.visited)
         not_visited = np.delete(not_visited, n)
+        if c == pm:
+            return dist[pm]
         low = math.inf
 
         for index in range(0, len(not_visited)):
             v = not_visited[index]
             alt = dist[c] + sol.graph[c][v]
-            if pm == v:
-                if len(not_visited) == 1:
-                    return alt
-            else:
-                if alt < dist[v]:
-                    dist[v] = alt
-                if low > dist[v]:
-                    n = index
-                    low = dist[v]
-    return math.inf
+            if alt < dist[v]:
+                dist[v] = alt
+            if low > dist[v]:
+                n = index
+                low = dist[v]
+    return 0
 
 
 def minimum_spanning_arborescence(sol):
@@ -110,7 +107,6 @@ def A_star(graph, places):
             else:
                 new_solution = copy.deepcopy(cur)
                 new_solution.add(i)
-                print(new_solution.visited)
                 heapq.heappush(T, new_solution)
 
     return None
