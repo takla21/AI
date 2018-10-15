@@ -20,12 +20,6 @@ class Solution:
         self.first = [places[0]]  # list of already visited attractions
         self.center = copy.deepcopy(places[1:(len(places) -1)]) # list of attractions not yet visited
         self.last = [places[-1]]
-        self.visited = self.first + self.center + self.last
-        self.h = 0
-
-
-
-
 
 
 def initial_sol(graph, places):
@@ -43,14 +37,35 @@ def dfs(sol):
 
 
 def shaking(sol, k):
-    """
-    Returns a solution on the k-th neighrboohood of sol
-    """
+    temp_sol = copy.deepcopy(sol)
+    for i in range(0,k):
+        a = randint(0, sol.center)
+        b = randint(0, sol.center)
+        while a == b:
+            b = randint(0, sol.center)
+        
+        temp_sol.center[a], temp_sol.center[b] = temp_sol.center[b], temp_sol.center[a]
+    return temp_sol
 
 def local_search_2opt(sol):
-    """
-    Apply 2-opt local search over sol
-    """
+    best = sol.g
+    best_solution = sol.center.copy()
+    backup = sol.center.copy()
+    for i in range(0, len(sol.center)):
+        for j in range(0, len(sol.center)):
+            sol.center = backup.copy()
+            sol.center[i], sol.center[j] = sol.center[j], sol.center[i]
+            if evaluate_distance(sol) < best:
+                best_solution = sol.center.copy()
+
+
+def evaluate_distance(sol):
+    path = sol.first[:] + sol.center[:] + sol.last[:]
+    distance = 0
+    for i in range(0, len(path) - 1):
+        distance += graph[path[i]][path[i+1]]
+
+    return distance
 
 def vns(sol, k_max, t_max):
     """
