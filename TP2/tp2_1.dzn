@@ -1,0 +1,6 @@
+N = 5;
+nationalite = 1;
+couleur = 2;
+animaux = 3;
+profession = 4;
+boisson = 5;
