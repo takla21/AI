@@ -22,16 +22,17 @@ constraint forall(e1 in equipes, e2 in equipes, a in tours) (  %Contrainte qui a
    calendrier[e1, a] == e2 <-> calendrier[e2, a] == e1
 );
 
-constraint forall(e in equipes, a in tours) ( %Contrainte pour eviter 4 match consecutifs a domicile
+%Contrainte pour eviter 4 match consecutifs a domicile
+constraint forall(e in equipes, a in 4..tour) ( 
    pv[e, calendrier[e, a - 1]]  + pv[e, calendrier[e, a - 2]] + pv[e, calendrier[e, a - 3]] + pv[e, calendrier[e, a]] < 4
    /\
    pv[e, calendrier[e, a - 1]]  + pv[e, calendrier[e, a - 2]] + pv[e, calendrier[e, a - 3]] + pv[e, calendrier[e, a]] > 0
 );
 
 %Contrainte qui brise symetrie
-%constraint forall(e1 in equipes, e2 in equipes, a in tours) (
-%   
-%);
+constraint forall(e in equipes, a in 1..(tour - 1)) (
+   (pv[e, calendrier[e, a]] == pv[e, calendrier[e, a + 1]]) -> not(calendrier[e, a + 1] == calendrier[e, a])
+);
 
 solve satisfy;
 

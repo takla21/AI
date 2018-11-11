@@ -43,7 +43,7 @@ constraint forall(m in maisons) (
 
 %hint 5 --
 constraint forall(m in maisons) (
-  couleurs[m] == Vert <-> couleurs[m + 1] == Blanc
+  couleurs[m + 1] == Vert <-> couleurs[m] == Blanc
 );
 
 %hint 6
@@ -57,14 +57,14 @@ constraint forall(m in maisons) (
 );
 
 %hint 8
-constraint boissons[((N - 1) div 2) + 1] == Lait;
+constraint boissons[3] == Lait;
 
 %hint 9
 constraint nationalites[1] == Norvegien;
 
 %hint 10
 constraint forall(m in maisons) (
-  professions[m] == Medecin <-> animaux[m + 1] == Renard xor animaux[m - 1] == Renard
+  animaux[m] == Renard <-> professions[m + 1] == Medecin xor professions[m - 1] == Medecin
 );
 
 %hint 11 --
@@ -84,7 +84,7 @@ constraint forall(m in maisons) (
 
 %hint 14
 constraint forall(m in maisons) (
-  nationalites[m] == Norvegien <-> couleurs[m + 1] == Bleu
+  nationalites[m] == Norvegien <-> couleurs[m + 1] == Bleu xor couleurs[m - 1] == Bleu
 );
 
 solve satisfy;
