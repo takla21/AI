@@ -12,9 +12,9 @@ array[equipes, 1..tour] of var 1..nbTeams: calendrier;
 
 predicate differentEquipe(int :e) = all_different(a in tours)(calendrier[e,a]);
 
-constraint forall(e in equipes) (differentEquipe(e)); %Contrainte qui empeche de joueur contre la meme equipe
+constraint forall(e in equipes) (differentEquipe(e)); %Contrainte qui empeche une equipe de jouer contre la meme equipe
 
-constraint forall(e in equipes, a in tours) ( %Contrainte qui empeche de jouer contre lui-meme
+constraint forall(e in equipes, a in tours) ( %Contrainte qui empeche une equipe de jouer contre lui-meme
   not (calendrier[e, a] == e)
 );
 
@@ -22,9 +22,16 @@ constraint forall(e1 in equipes, e2 in equipes, a in tours) (  %Contrainte qui a
    calendrier[e1, a] == e2 <-> calendrier[e2, a] == e1
 );
 
-constraint forall(e in equipes, a in 4..tour) ( %Contrainte pour eviter 4 match consecutifs a domiciles
-   ((pv[e, calendrier[e, a - 1]]  + pv[e, calendrier[e, a - 2]] + pv[e, calendrier[e, a - 3]]) >= 3 ) -> pv[e, calendrier[e, a]] == 0
+constraint forall(e in equipes, a in tours) ( %Contrainte pour eviter 4 match consecutifs a domicile
+   pv[e, calendrier[e, a - 1]]  + pv[e, calendrier[e, a - 2]] + pv[e, calendrier[e, a - 3]] + pv[e, calendrier[e, a]] < 4
+   /\
+   pv[e, calendrier[e, a - 1]]  + pv[e, calendrier[e, a - 2]] + pv[e, calendrier[e, a - 3]] + pv[e, calendrier[e, a]] > 0
 );
+
+%Contrainte qui brise symetrie
+%constraint forall(e1 in equipes, e2 in equipes, a in tours) (
+%   
+%);
 
 solve satisfy;
 
