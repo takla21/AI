@@ -208,7 +208,18 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     
     
     def _one_hot(self,y):
-        pass
+        self.nb_classes
+        ar = []
+        for i in range(0,len(y)):
+            ar.append([])
+            for j in range(0, self.nb_classes):
+                if y[i] == j+1:
+                    ar[i].append(1)
+                else:
+                    ar[i].append(0)
+
+        print(ar)
+        return numpy.matrix(ar)
 
 
     """
@@ -246,3 +257,10 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
         
         pass
     
+
+y = [1, 1, 2, 3, 2]
+
+obj = SoftmaxClassifier()
+obj.nb_classes = 3
+
+obj._one_hot(y)
