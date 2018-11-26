@@ -1,82 +1,93 @@
 include "globals.mzn";
 
-int: N; % Taille du problème
-int: nationalite; % {anglais, espagnol, ukrainien, norvegien, japonais}
-int: couleur; % {rouge, vert, blanche, jaune, bleue}
-int: animaux; % {chien, escargot, renard, cheval, zebre}
-int: profession; % {sculpteur, diplomate, medecin, violoniste, acrobate}
-int: boisson; % {cafe, the, lait, orange, eau}
+enum Nationalite = { Anglais, Espagnol, Ukrainien, Norvegien, Japonais };
+enum Couleur = { Rouge, Vert, Blanc, Jaune, Bleu };
+enum Animal = { Chien, Escargot, Renard, Cheval, Zebre };
+enum Profession = { Sculpteur, Diplomate, Medecin, Violoniste, Acrobate };
+enum Boisson = { Cafe, The, Lait, Orange, Eau };
 
+int : N = 5;
 set of int: maisons = 1..N;
 
-array[maisons, 1..5] of var 1..N: relations;
+array[maisons] of var Nationalite: nationalites;
+array[maisons] of var Couleur: couleurs;
+array[maisons] of var Animal: animaux;
+array[maisons] of var Profession: professions;
+array[maisons] of var Boisson: boissons;
 
-predicate differentObjet(int :o) = all_different(m in 1..N)(relations[m,o]);
-predicate voisin(var int:m, int:o1, int: o2, int: v1, int: v2) =
-if m = 1 then
-     (relations[m, o1] = v1 <-> relations[m + 1, o2] = v2)
-else 
-  if m = 5 then
-     (relations[m, o1] = v1 <-> relations[m - 1, o2] = v2)
-  else
-     (relations[m, o1] = v1 <-> relations[m + 1, o2] = v2 xor relations[m - 1, o2] = v2)
-  endif
-endif;
+constraint all_different(m in maisons)(nationalites[m]);
+constraint all_different(m in maisons)(couleurs[m]);
+constraint all_different(m in maisons)(animaux[m]);
+constraint all_different(m in maisons)(professions[m]);
+constraint all_different(m in maisons)(boissons[m]);
 
-constraint forall(o in 1..N) (differentObjet(o));
-
+%hint 1
 constraint forall(m in maisons) (
-  relations[m, couleur] == 1 <-> relations[m, nationalite] == 1 %hint 1
+  nationalites[m] == Anglais <-> couleurs[m] == Rouge
 );
 
+%hint 2
 constraint forall(m in maisons) (
-  relations[m, animaux] == 1 <-> relations[m, nationalite] == 2 %hint 2
+  nationalites[m] == Espagnol <-> animaux[m] == Chien
 );
 
+%hint 3
 constraint forall(m in maisons) (
-  relations[m, couleur] == 2 <-> relations[m, boisson] == 1 %hint 3
+  couleurs[m] == Vert <-> boissons[m] == Cafe
 );
 
+%hint 4
 constraint forall(m in maisons) (
-  relations[m, nationalite] == 3 <-> relations[m, boisson] == 2 %hint 4
+  nationalites[m] == Ukrainien <-> boissons[m] == The
 );
 
+%hint 5 --
 constraint forall(m in maisons) (
-  relations[m, couleur] == 2 <-> relations[m + 1, couleur] == 3 %hint 5
+  couleurs[m + 1] == Vert <-> couleurs[m] == Blanc
 );
 
+%hint 6
 constraint forall(m in maisons) (
-  relations[m, profession] == 1 <-> relations[m, animaux] == 2 %hint 6
+  professions[m] == Sculpteur <-> animaux[m] == Escargot
 );
 
+%hint 7 --
 constraint forall(m in maisons) (
-  relations[m, profession] == 2 <-> relations[m, couleur] == 4 %hint 7
+  professions[m] == Diplomate <-> couleurs[m] == Jaune
 );
 
-constraint relations[((N - 1) div 2) + 1,boisson] == 3; %hint 8
+%hint 8
+constraint boissons[3] == Lait;
 
-constraint relations[1,nationalite] == 4; %hint 9
+%hint 9
+constraint nationalites[1] == Norvegien;
 
+%hint 10
 constraint forall(m in maisons) (
-  relations[m, profession] == 3 <-> relations[m + 1, animaux] == 3 xor relations[m - 1, animaux] == 3 %hint 10
+  animaux[m] == Renard <-> professions[m + 1] == Medecin xor professions[m - 1] == Medecin
 );
 
+%hint 11 --
 constraint forall(m in maisons) (
-  relations[m, profession] == 2 <-> relations[m + 1, animaux] == 4 xor relations[m - 1, animaux] == 4 %hint 11
+  professions[m] == Diplomate <-> animaux[m + 1] == Cheval xor animaux[m - 1] == Cheval
 );
 
+%hint 12
 constraint forall(m in maisons) (
-  relations[m, profession] == 4 <-> relations[m, boisson] == 4 %hint 12
+  professions[m] == Violoniste <-> boissons[m] == Orange
 );
 
+%hint 13
 constraint forall(m in maisons) (
-  relations[m, profession] == 5 <-> relations[m, nationalite] == 5 %hint 13
+  nationalites[m] == Japonais <-> professions[m] == Acrobate
 );
 
+%hint 14
 constraint forall(m in maisons) (
-  relations[m, profession] == 4 <-> relations[m + 1, couleur] == 5 xor relations[m - 1, couleur] == 5 %hint 14
+  nationalites[m] == Norvegien <-> couleurs[m + 1] == Bleu xor couleurs[m - 1] == Bleu
 );
 
 solve satisfy;
 
-output[ show(relations[i,j]) ++ (if j == N then "\n" else " " endif) | i in 1..N, j in 1..N];
+%output[ "Qui boit de l'eau? " ++ show(nationalites[m]) ++ "\n" | m in 1..N where fix(boissons[m]) == Eau];
+%output[ "Qui a un zebre? " ++ show(nationalites[m]) ++ "\n" | m in 1..N where fix(animaux[m]) == Zebre];
