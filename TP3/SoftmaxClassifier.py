@@ -71,20 +71,20 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
 
         
 
-        # X_bias =         
-        # self.theta_  = 
+        X_bias = np.matrix()         
+        self.theta_ = np.random.rand(X.shape[1] + 1,self.nb_classes) 
         
 
         for epoch in range( self.n_epochs):
 
-            # logits = 
-            # probabilities = 
+            #logits = 
+            #probabilities = 
             
             
-            # loss =                
-            # self.theta_ = 
+            #loss =                
+            #self.theta_ = 
             
-            # self.losses_.append(loss)
+            #self.losses_.append(loss)
 
             if self.early_stopping:
                 pass
@@ -213,13 +213,13 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
         for i in range(0,len(y)):
             ar.append([])
             for j in range(0, self.nb_classes):
-                if y[i] == j+1:
-                    ar[i].append(1)
-                else:
-                    ar[i].append(0)
+                ar[i].append(0)
+
+            ar[i][y[i
+                    ar[j+1] = 1] - 1] = 1
 
         print(ar)
-        return numpy.matrix(ar)
+        return np.matrix(ar)
 
 
     """
@@ -234,8 +234,16 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     """
     
     def _softmax(self,z):
-        pass
-    
+        p = np.array()
+        norm = 0
+        for i in self.nb_classes:
+            norm += z[i]
+
+        norm = norm / self.nb_classes
+        for i in range(z):
+            p.append(z[i]/self.nb_classes)
+        
+        return p
 
     """
         In:
