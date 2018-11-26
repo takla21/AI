@@ -182,8 +182,7 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
         If self.regularization, compute l2 regularization term
         Ensure that probabilities are not equal to either 0. or 1. using self.eps
 
-        Out:
-        Probabilities
+        Out: cost (real number)
     """
     
     def _cost_function(self,probabilities, y ): 
@@ -214,7 +213,7 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
 
     """
         In :
-        Logits: (self.nb_features +1) * self.nb_classes
+        Logits: nb_exemples * self.nb_classes
 
         Do:
         Compute softmax on logits
@@ -246,5 +245,4 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     def _get_gradient(self,X,y, probas):
         
         pass
-    
     
