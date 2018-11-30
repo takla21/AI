@@ -1,6 +1,6 @@
 from sklearn.base import BaseEstimator, ClassifierMixin
 import numpy as np
-
+import math
 
 class SoftmaxClassifier(BaseEstimator, ClassifierMixin):  
     """A softmax classifier"""
@@ -69,10 +69,11 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
         self.nb_feature = X.shape[1]
         self.nb_classes = len(np.unique(y))
 
-        
+        X_bias = X
+        for i in range(0, self.nb_feature):
+                X_bias[i].append(1)
 
-        X_bias = np.matrix()         
-        self.theta_ = np.random.rand(X.shape[1] + 1,self.nb_classes) 
+        self.theta_ = np.random.rand(X.shape[1],self.nb_classes) 
         
 
         for epoch in range( self.n_epochs):
@@ -113,6 +114,17 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     def predict_proba(self, X, y=None):
         try:
             getattr(self, "theta_")
+            for i in range(0, self.nb_feature):
+                X[i].append(1)
+            
+            logits = _one_hot(X)
+            
+            probabilities = []
+            for i in range(0, self.nb_feature):
+                probabilities.append(_softmax(X[i]))
+
+            return probabilities
+
         except AttributeError:
             raise RuntimeError("You must train classifer before predicting data!")
         
@@ -137,6 +149,16 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X, y=None):
         try:
             getattr(self, "theta_")
+            for i in range(0, self.nb_feature):
+                X[i].append(1)
+            
+            logits = _one_hot(X)
+            probabilities = []
+            for i in range(0, self.nb_feature):
+                probabilities.append(_softmax(X[i]))
+
+
+
         except AttributeError:
             raise RuntimeError("You must train classifer before predicting data!")
         pass
@@ -186,10 +208,15 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     """
     
     def _cost_function(self,probabilities, y ): 
-        pass
+        J = 0
+        for i in range(0, self.nb_examples):
+            for k in range(0, self.nb_classes):
+                J += y[i][k] * probabilities[k]
     
+        J *= -1/self.nb_examples
+        
+        return J
 
-    
     """
         In :
         Target y: nb_examples * 1
@@ -215,8 +242,7 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
             for j in range(0, self.nb_classes):
                 ar[i].append(0)
 
-            ar[i][y[i
-                    ar[j+1] = 1] - 1] = 1
+            ar[i][y[j+1] - 1] = 1
 
         print(ar)
         return np.matrix(ar)
@@ -234,16 +260,16 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     """
     
     def _softmax(self,z):
-        p = np.array()
+        p = []
         norm = 0
         for i in self.nb_classes:
-            norm += z[i]
+            norm += math.exp(z[i])
 
         norm = norm / self.nb_classes
         for i in range(z):
-            p.append(z[i]/self.nb_classes)
+            p.append(math.exp(z[i])/norm)
         
-        return p
+        return np.array(p)
 
     """
         In:
