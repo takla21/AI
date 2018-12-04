@@ -69,35 +69,29 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
         self.nb_feature = X.shape[1]
         self.nb_classes = len(np.unique(y))
 
-        X_bias = X
-        for i in range(0, self.nb_feature):
-                X_bias[i].append(1)
+        self.theta_ = np.random.rand(self.nb_feature + 1, self.nb_classes)
 
-        self.theta_ = np.random.rand(X.shape[1],self.nb_classes) 
-        
+        self.nb_examples = X.shape[0]
+        X_bias = np.c_[ X, np.ones(X.shape[0]) ]
 
         for epoch in range( self.n_epochs):
 
-            #logits = 
-            #probabilities = 
-            
-            
-            #loss =                
-            #self.theta_ = 
-            
-            #self.losses_.append(loss)
+            z = np.dot(X_bias, self.theta_)
 
-            if self.early_stopping:
-                pass
+            probabilities = self._softmax(z)
+            
+            loss = self._cost_function(probabilities, y)                
+            self.theta_ = self.theta_ - self.lr * self._get_gradient(X_bias, y, probabilities)
+            
+            if (len(self.losses_) > 0):
+                last_loss = self.losses_[-1]
 
-
+                if self.early_stopping:
+                    if (self.losses_[-1] - last_loss) < self.threshold:
+                        break;
+            self.losses_.append(loss)
         return self
-
     
-
-   
-    
-
     """
         In: 
         X without bias
@@ -114,22 +108,17 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     def predict_proba(self, X, y=None):
         try:
             getattr(self, "theta_")
-            for i in range(0, self.nb_feature):
-                X[i].append(1)
+
+            X_bias = np.c_[ X, np.ones(X.shape[0]) ]
+
+            z = np.dot(X_bias, self.theta_)
             
-            logits = _one_hot(X)
-            
-            probabilities = []
-            for i in range(0, self.nb_feature):
-                probabilities.append(_softmax(X[i]))
+            probabilities = self._softmax(z)
 
             return probabilities
 
         except AttributeError:
             raise RuntimeError("You must train classifer before predicting data!")
-        
-        pass
-
 
         """
         In: 
@@ -149,20 +138,17 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X, y=None):
         try:
             getattr(self, "theta_")
-            for i in range(0, self.nb_feature):
-                X[i].append(1)
-            
-            logits = _one_hot(X)
-            probabilities = []
-            for i in range(0, self.nb_feature):
-                probabilities.append(_softmax(X[i]))
+            probabilities = self.predict_proba(X, y)
 
+            predict_classes = []
+            for p in probabilities:
+                i = np.argmax(p)
+                predict_classes.append(i)
 
+            return predict_classes
 
         except AttributeError:
             raise RuntimeError("You must train classifer before predicting data!")
-        pass
-
     
 
     def fit_predict(self, X, y=None):
@@ -185,7 +171,10 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     """    
 
     def score(self, X, y=None):
-        pass
+        probabilities = self.predict_proba(X, y)
+        cost = self._cost_function(probabilities, y)
+        return cost
+
     
 
     """
@@ -209,12 +198,27 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     
     def _cost_function(self,probabilities, y ): 
         J = 0
-        for i in range(0, self.nb_examples):
-            for k in range(0, self.nb_classes):
-                J += y[i][k] * probabilities[k]
-    
+        e = 10**-9
+        y_encoded = self._one_hot(y)
+        for i in range(1, self.nb_examples):
+            for k in range(1, self.nb_classes):
+                p = probabilities[i][k]
+                if (p == 0):
+                    p += e
+                if (p == 1):
+                    p -= e
+                J += y_encoded[i][k] * math.log(p)
+
         J *= -1/self.nb_examples
-        
+
+        if self.regularization:
+            l2 = 0
+            for i in range(1, self.nb_feature):
+                for j in range(0, self.nb_classes):
+                    l2 += self.theta_[i][j] * self.theta_[i][j]
+            l2 *= self.alpha/self.nb_examples
+            J += l2
+
         return J
 
     """
@@ -235,17 +239,8 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     
     
     def _one_hot(self,y):
-        self.nb_classes
-        ar = []
-        for i in range(0,len(y)):
-            ar.append([])
-            for j in range(0, self.nb_classes):
-                ar[i].append(0)
-
-            ar[i][y[j+1] - 1] = 1
-
-        print(ar)
-        return np.matrix(ar)
+        one_hot_targets = np.eye(self.nb_classes)[y.reshape(-1)]
+        return one_hot_targets
 
 
     """
@@ -260,16 +255,14 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     """
     
     def _softmax(self,z):
-        p = []
-        norm = 0
-        for i in self.nb_classes:
-            norm += math.exp(z[i])
+        probabilities = []
+        for x in z:
+            exp = np.exp(x)
+            somme = np.sum(exp)
+            p = np.divide(exp, somme)
+            probabilities.append(p)
 
-        norm = norm / self.nb_classes
-        for i in range(z):
-            p.append(math.exp(z[i])/norm)
-        
-        return np.array(p)
+        return np.array(probabilities)
 
     """
         In:
@@ -288,13 +281,16 @@ class SoftmaxClassifier(BaseEstimator, ClassifierMixin):
     """
 
     def _get_gradient(self,X,y, probas):
+        J = 0
+        y_encoded = self._one_hot(y)
+        subs = np.subtract(probas, y_encoded)
+        J = np.matmul(X.T, subs)
+        J = np.dot(J, 1/X.shape[0])
         
-        pass
-    
+        if self.regularization:
+            R = np.dot(self.theta_, 2 * self.alpha/1/X.shape[0])
+            for i in range(0, J.shape[0]):
+                for j in range(0, J.shape[1]):
+                    J[i][j] += R[i][j]
 
-y = [1, 1, 2, 3, 2]
-
-obj = SoftmaxClassifier()
-obj.nb_classes = 3
-
-obj._one_hot(y)
+        return J
